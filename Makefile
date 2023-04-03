@@ -7,7 +7,7 @@ TF_LOCK_FILE?=${TEST_TF_CHART_ROOT}/.terraform.lock.hcl
 
 VERSION=0.9.0
 
-PROVIDERS?=mirantis-launchpad mirantis-msr-connect mirantis-mke-connect
+PROVIDERS?=mirantis-launchpad
 ARCHES?=amd64 arm64
 OSES?=linux darwin
 
