@@ -26,7 +26,7 @@ build:
 	for PROVIDER in $(PROVIDERS); do \
 		for OS in $(OSES); do \
 			for ARCH in $(ARCHES); do \
-				GOOS=$$OS GOARCH=$$ARCH $(GO) build -v -o "$(LOCAL_BIN_PATH)/$(BINARY_ROOT)-$$PROVIDER-$$OS_$$ARCH" "./cmd/$$PROVIDER"; \
+				GOOS=$$OS GOARCH=$$ARCH $(GO) build -v -o "$(LOCAL_BIN_PATH)/$(BINARY_ROOT)-$${PROVIDER}-$${OS}_$${ARCH}" "./cmd/$${PROVIDER}"; \
 			done; \
 		done; \
 	done;
@@ -40,9 +40,9 @@ install: build
 	for PROVIDER in $(PROVIDERS); do \
 		for OS in $(OSES); do \
 			for ARCH in $(ARCHES); do \
-				mkdir -p "$(INSTALL_ROOT)/$(TERRAFORM_PROVIDER_ROOT)/$$PROVIDER/$(VERSION)/$${OS}_$${ARCH}"; \
-				cp "$(LOCAL_BIN_PATH)/$(BINARY_ROOT)-$$PROVIDER-$$OS_$$ARCH" "$(INSTALL_ROOT)/$(TERRAFORM_PROVIDER_ROOT)/$$PROVIDER/$(VERSION)/$${OS}_$${ARCH}/$(BINARY_ROOT)-$$PROVIDER"; \
-    	done; \
+				mkdir -p "$(INSTALL_ROOT)/$(TERRAFORM_PROVIDER_ROOT)/$${PROVIDER}/$(VERSION)/$${OS}_$${ARCH}"; \
+				cp "$(LOCAL_BIN_PATH)/$(BINARY_ROOT)-$${PROVIDER}-$${OS}_$${ARCH}" "$(INSTALL_ROOT)/$(TERRAFORM_PROVIDER_ROOT)/$${PROVIDER}/$(VERSION)/$${OS}_$${ARCH}/$(BINARY_ROOT)-$${PROVIDER}"; \
+	    	done; \
 		done; \
 	done;
 
