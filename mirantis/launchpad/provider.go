@@ -8,6 +8,7 @@ func Provider() *schema.Provider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
 			"mirantis-launchpad_launchpad": ResourceConfig(),
+			"mirantis-launchpad_yaml":      ResourceYamlConfig(),
 		},
 	}
 }
