@@ -7,8 +7,8 @@ import (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
-			"mirantis-launchpad_launchpad": ResourceConfig(),
-			"mirantis-launchpad_yaml":      ResourceYamlConfig(),
+			"launchpad_config":      ResourceConfig(),
+			"launchpad_yaml_config": ResourceYamlConfig(),
 		},
 	}
 }
