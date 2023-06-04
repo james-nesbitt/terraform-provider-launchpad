@@ -19,10 +19,9 @@ variable "admin_password" {
 
 variable "keypath" {
   description = "Path to the PEM used as an ssh key to each host."
-  type = string
-  default = "./ssh_keys/privatekey.pem"
+  type        = string
+  default     = "./ssh_keys/privatekey.pem"
 }
-
 
 variable "manager_count" {
   default = 1
@@ -66,7 +65,7 @@ variable "msr_volume_size" {
 
 variable "mcr_version" {
   type        = string
-  default     = "20.10.7"
+  default     = "23.0.3"
   description = "The mcr version to deploy across all nodes in the cluster."
 }
 
@@ -96,7 +95,7 @@ variable "mcr_install_url_windows" {
 
 variable "mke_version" {
   type        = string
-  default     = "3.5.2"
+  default     = "3.6.3"
   description = "The UCP version to deploy."
 }
 
@@ -114,7 +113,7 @@ variable "mke_install_flags" {
 
 variable "mke_default_orchestrator" {
   type        = string
-  default     = "swarm"
+  default     = "kubernetes"
   description = "Set the MKE default orchestrator."
 }
 

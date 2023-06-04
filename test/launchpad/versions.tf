@@ -2,17 +2,15 @@
 terraform {
   required_version = ">= 1.0.0"
   required_providers {
-    mirantis-launchpad = {
-      version = ">= 0.9.0"
+    launchpad = {
+      version = "0.9.0"
       source  = "mirantis.com/providers/mirantis-launchpad"
     }
     mirantis-msr-connect = {
-      version = ">= 0.9.0"
-      source  = "mirantis.com/providers/mirantis-msr-connect"
+      source = "Mirantis/msr"
     }
     mirantis-mke-connect = {
-      version = ">= 0.9.0"
-      source  = "mirantis.com/providers/mirantis-mke-connect"
+      source = "Mirantis/mke"
     }
     docker = {
       source  = "kreuzwerker/docker"

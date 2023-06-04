@@ -1,8 +1,9 @@
-
-output "mke_lb_dns" {
-  value = module.managers.lb_dns_name
+output "hosts" {
+  value       = module.provision.hosts
+  description = "list of host machines used for the cluster"
 }
 
-output "msr_lb_dns" {
-  value = module.msrs.lb_dns_name
+output "mke_lb" {
+  value       = "https://${module.provision.mke_lb}"
+  description = "LB path for the MKE ingress"
 }

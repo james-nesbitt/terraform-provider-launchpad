@@ -1,89 +1,82 @@
-locals {
-  global_tags = merge(
-    {
-      "Name"                                        = var.cluster_name
-      "kubernetes.io/cluster/${var.cluster_name}"   = "shared"
-    },
-    var.extra_tags
-  )
+# This aws secrets manager secret will be used in monitoring-infra-mke-apps terraform configuration as well
+// provision cluster machines
+module "provision" {
+  source  = "terraform-mirantis-modules/launchpad-aws/mirantis"
+  version = "0.0.1"
+
+  aws_region   = "us-west-2"
+  master_count = 1
+  worker_count = 3
 }
 
-provider "aws" {
-  region = var.aws_region
-  # shared_credentials_file = var.aws_shared_credentials_file
-  # profile = var.aws_profile
+// Mirantis installing terraform provider
+provider "launchpad" {}
+
+// launchpad install from provisioned cluster
+resource "launchpad_config" "cluster" {
+  skip_destroy = true
+
+  metadata {
+    name = var.cluster_name
+  }
+  spec {
+    cluster {
+      prune = false
+    }
+
+    dynamic "host" {
+      for_each = module.provision.hosts
+
+      content {
+        role = host.value.role
+
+        dynamic "ssh" {
+          for_each = can(host.value.ssh) ? [1] : []
+
+          content {
+            address  = host.value.ssh.address
+            user     = host.value.ssh.user
+            key_path = host.value.ssh.keyPath
+            port     = 22
+          }
+        }
+
+        dynamic "winrm" {
+          for_each = can(host.value.winRM) ? [1] : []
+
+          content {
+            address   = host.value.winRM.address
+            port      = 5985
+            user      = host.value.winRM.user
+            password  = host.value.winRM.password
+            use_https = host.value.winRM.useHTTPS
+            insecure  = host.value.winRM.insecure
+          }
+        }
+
+      }
+    }
+
+    mcr {
+      channel             = "stable"
+      install_url_linux   = "https://get.mirantis.com/"
+      install_url_windows = "https://get.mirantis.com/install.ps1"
+      repo_url            = "https://repos.mirantis.com"
+      version             = "23.0.3"
+    } // mcr
+
+    mke {
+      admin_password = "mirantisadmin"
+      admin_username = "admin"
+      image_repo     = "docker.io/mirantis"
+      version        = "3.6.3"
+      install_flags  = ["--san=${module.provision.mke_lb}", "--default-node-orchestrator=kubernetes", "--nodeport-range=32768-35535"]
+      upgrade_flags  = ["--force-recent-backup", "--force-minimums"]
+    } // mke
+
+  } // spec
 }
 
-module "vpc" {
-  source       = "./modules/vpc"
-  cluster_name = var.cluster_name
-  host_cidr    = var.vpc_cidr
-  extra_tags   = local.global_tags
-}
-
-module "common" {
-  source       = "./modules/common"
-  cluster_name = var.cluster_name
-  vpc_id       = module.vpc.id
-  keypath      = var.keypath
-  extra_tags   = local.global_tags
-}
-
-module "managers" {
-  source                = "./modules/manager"
-  manager_count          = var.manager_count
-  vpc_id                = module.vpc.id
-  cluster_name          = var.cluster_name
-  subnet_ids            = module.vpc.public_subnet_ids
-  security_group_id     = module.common.security_group_id
-  image_id              = module.common.image_id
-  kube_cluster_tag      = module.common.kube_cluster_tag
-  ssh_key               = var.cluster_name
-  instance_profile_name = module.common.instance_profile_name
-  extra_tags            = local.global_tags
-}
-
-module "msrs" {
-  source                = "./modules/msr"
-  msr_count             = var.msr_count
-  vpc_id                = module.vpc.id
-  cluster_name          = var.cluster_name
-  subnet_ids            = module.vpc.public_subnet_ids
-  security_group_id     = module.common.security_group_id
-  image_id              = module.common.image_id
-  kube_cluster_tag      = module.common.kube_cluster_tag
-  ssh_key               = var.cluster_name
-  instance_profile_name = module.common.instance_profile_name
-  extra_tags            = local.global_tags
-}
-
-module "workers" {
-  source                = "./modules/worker"
-  worker_count          = var.worker_count
-  vpc_id                = module.vpc.id
-  cluster_name          = var.cluster_name
-  subnet_ids            = module.vpc.public_subnet_ids
-  security_group_id     = module.common.security_group_id
-  image_id              = module.common.image_id
-  kube_cluster_tag      = module.common.kube_cluster_tag
-  ssh_key               = var.cluster_name
-  instance_profile_name = module.common.instance_profile_name
-  worker_type           = var.worker_type
-  extra_tags            = local.global_tags
-}
-
-module "windows_workers" {
-  source                         = "./modules/windows_worker"
-  worker_count                   = var.windows_worker_count
-  vpc_id                         = module.vpc.id
-  cluster_name                   = var.cluster_name
-  subnet_ids                     = module.vpc.public_subnet_ids
-  security_group_id              = module.common.security_group_id
-  image_id                       = module.common.windows_2019_image_id
-  kube_cluster_tag               = module.common.kube_cluster_tag
-  instance_profile_name          = module.common.instance_profile_name
-  worker_type                    = var.worker_type
-  windows_administrator_password = var.windows_administrator_password
-}
-
-
+# output "mke_cluster_name" {
+#   value = launchpad_config.cluster.metadata[0].name
+# }
