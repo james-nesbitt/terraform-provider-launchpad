@@ -3,6 +3,7 @@ package launchpad
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -55,8 +56,13 @@ func resourceYamlConfigCreate(ctx context.Context, d *schema.ResourceData, m int
 		return diag.FromErr(fmt.Errorf("%w; %s", err, logrusBuffer.String()))
 	}
 
-	if product.Apply(false, false, 1) != nil {
-		return diag.FromErr(fmt.Errorf("%w; %s", err, logrusBuffer.String()))
+	productConfig, err := json.MarshalIndent(product, "", "  ")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := product.Apply(false, false, 10); err != nil {
+		return diag.FromErr(fmt.Errorf("%w; %s\nProductConfig:\n%s", err, logrusBuffer.String(), string(productConfig)))
 	}
 
 	if err := d.Set("last_updated", time.Now().Format(time.RFC850)); err != nil {

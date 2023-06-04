@@ -3,6 +3,7 @@ package launchpad
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -264,8 +265,13 @@ func resourceConfigCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	logrusBuffer := &bytes.Buffer{}
 	logrus.SetOutput(logrusBuffer)
 
+	clusterConfig, err := json.MarshalIndent(mkeClient.ClusterConfig, "", "  ")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	if err := mkeClient.Apply(false, false, 10); err != nil {
-		return diag.FromErr(fmt.Errorf("%w; %s", err, logrusBuffer.String()))
+		return diag.FromErr(fmt.Errorf("%w; %s\nClusterConfig:\n%s", err, logrusBuffer.String(), string(clusterConfig)))
 	}
 
 	if err := d.Set("last_updated", time.Now().Format(time.RFC850)); err != nil {

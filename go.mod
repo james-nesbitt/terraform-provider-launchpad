@@ -6,7 +6,7 @@ require (
 	github.com/Mirantis/mcc v0.0.0-20220407071916-b3b8acff3300
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.1
 	github.com/k0sproject/rig v0.3.22
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	github.com/sirupsen/logrus v1.8.1
 )
 
 require (
@@ -60,7 +60,6 @@ require (
 	github.com/oklog/run v1.0.0 // indirect
 	github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3 // indirect
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	github.com/zclconf/go-cty v1.9.1 // indirect
@@ -75,4 +74,5 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/segmentio/analytics-go.v3 v3.1.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

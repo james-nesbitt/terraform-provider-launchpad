@@ -20,9 +20,14 @@ func FlattenInputConfigModel(d *schema.ResourceData) (mcc_mke.MKE, error) {
 	// parse spec's cluster flags
 	specList := d.Get("spec").([]interface{})[0]
 	spec := specList.(map[string]interface{})
-	clusterList := spec["cluster"].([]interface{})[0]
-	cluster := clusterList.(map[string]interface{})
-	prune := cluster["prune"].(bool)
+
+	// parse the Cluster block and its flags
+	prune := false
+	if len(spec["cluster"].([]interface{})) > 0 {
+		clusterList := spec["cluster"].([]interface{})[0]
+		cluster := clusterList.(map[string]interface{})
+		prune = cluster["prune"].(bool)
+	}
 
 	// parse spec's hosts info from Terraform config
 	hosts := mcc_api.Hosts{}
@@ -95,11 +100,13 @@ func FlattenInputConfigModel(d *schema.ResourceData) (mcc_mke.MKE, error) {
 			return mcc_mke.MKE{}, fmt.Errorf("%w: %s", ErrMissingConnectionBlock, h)
 		}
 
+		var msrMetadata mcc_api.MSRMetadata
+
 		extractedHost := &mcc_api.Host{
 			Role:        role,
 			Connection:  connection,
 			Hooks:       extractedHooks,
-			MSRMetadata: &mcc_api.MSRMetadata{},
+			MSRMetadata: &msrMetadata,
 		}
 		hosts = append(hosts, extractedHost)
 	}
