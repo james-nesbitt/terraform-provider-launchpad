@@ -3,8 +3,7 @@ terraform {
   required_version = ">= 1.0.0"
   required_providers {
     launchpad = {
-      version = "0.9.0"
-      source  = "mirantis.com/providers/mirantis-launchpad"
+      source = "Mirantis/launchpad"
     }
     mirantis-msr-connect = {
       source = "Mirantis/msr"

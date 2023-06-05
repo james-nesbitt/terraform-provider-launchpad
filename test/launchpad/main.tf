@@ -7,6 +7,7 @@ module "provision" {
   aws_region   = "us-west-2"
   master_count = 1
   worker_count = 3
+  cluster_name = var.cluster_name
 }
 
 // Mirantis installing terraform provider
@@ -21,7 +22,7 @@ resource "launchpad_config" "cluster" {
   }
   spec {
     cluster {
-      prune = false
+      prune = true
     }
 
     dynamic "host" {
@@ -62,21 +63,16 @@ resource "launchpad_config" "cluster" {
       install_url_linux   = "https://get.mirantis.com/"
       install_url_windows = "https://get.mirantis.com/install.ps1"
       repo_url            = "https://repos.mirantis.com"
-      version             = "23.0.3"
+      version             = var.mcr_version
     } // mcr
 
     mke {
-      admin_password = "mirantisadmin"
-      admin_username = "admin"
+      admin_password = var.admin_password
+      admin_username = var.admin_username
       image_repo     = "docker.io/mirantis"
-      version        = "3.6.3"
+      version        = var.mke_version
       install_flags  = ["--san=${module.provision.mke_lb}", "--default-node-orchestrator=kubernetes", "--nodeport-range=32768-35535"]
       upgrade_flags  = ["--force-recent-backup", "--force-minimums"]
     } // mke
-
-  } // spec
+  }   // spec
 }
-
-# output "mke_cluster_name" {
-#   value = launchpad_config.cluster.metadata[0].name
-# }

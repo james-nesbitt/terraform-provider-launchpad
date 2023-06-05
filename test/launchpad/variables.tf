@@ -1,5 +1,5 @@
 variable "cluster_name" {
-  default = "tf-mcc-provider-test"
+  default = "mcc-test"
 }
 
 variable "aws_region" {
@@ -14,7 +14,7 @@ variable "admin_username" {
   default = "admin"
 }
 variable "admin_password" {
-  default = "tum40PJ9lGIFySvPeNQYsUBGz8zIKlia"
+  default = "mirantisorca"
 }
 
 variable "keypath" {
@@ -61,7 +61,6 @@ variable "worker_volume_size" {
 variable "msr_volume_size" {
   default = 100
 }
-
 
 variable "mcr_version" {
   type        = string
