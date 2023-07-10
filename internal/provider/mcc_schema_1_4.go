@@ -143,6 +143,11 @@ func launchpadSchema14() schema.Schema {
 								Required:            true,
 								Sensitive:           true,
 							},
+							"license_file_path": schema.StringAttribute{
+								MarkdownDescription: "MKE license file path",
+								Optional:            true,
+								Computed:            true,
+							},
 
 							"install_flags": schema.ListAttribute{
 								MarkdownDescription: "Optional MKE bootstrapper install flags",
@@ -365,13 +370,14 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 			},
 
 			MKE: mcc_mke_api.MKEConfig{
-				AdminUsername: ls.Spec.MKE.AdminUsername.ValueString(),
-				AdminPassword: ls.Spec.MKE.AdminPassword.ValueString(),
-				ImageRepo:     ls.Spec.MKE.ImageRepo.ValueString(),
-				Version:       ls.Spec.MKE.Version.ValueString(),
-				InstallFlags:  mcc_common_api.Flags{},
-				UpgradeFlags:  mcc_common_api.Flags{},
-				Metadata:      &mcc_mke_api.MKEMetadata{},
+				AdminUsername:   ls.Spec.MKE.AdminUsername.ValueString(),
+				AdminPassword:   ls.Spec.MKE.AdminPassword.ValueString(),
+				ImageRepo:       ls.Spec.MKE.ImageRepo.ValueString(),
+				Version:         ls.Spec.MKE.Version.ValueString(),
+				InstallFlags:    mcc_common_api.Flags{},
+				UpgradeFlags:    mcc_common_api.Flags{},
+				Metadata:        &mcc_mke_api.MKEMetadata{},
+				LicenseFilePath: ls.Spec.MKE.LicenseFilePath.ValueString(),
 			},
 
 			MSR: nil,
@@ -505,12 +511,13 @@ type launchpadSchema14ModelSpecMCR struct {
 }
 
 type launchpadSchema14ModelSpecMKE struct {
-	AdminPassword types.String `tfsdk:"admin_password"`
-	AdminUsername types.String `tfsdk:"admin_username"`
-	ImageRepo     types.String `tfsdk:"image_repo"`
-	Version       types.String `tfsdk:"version"`
-	InstallFlags  types.List   `tfsdk:"install_flags"`
-	UpgradeFlags  types.List   `tfsdk:"upgrade_flags"`
+	AdminPassword   types.String `tfsdk:"admin_password"`
+	AdminUsername   types.String `tfsdk:"admin_username"`
+	ImageRepo       types.String `tfsdk:"image_repo"`
+	Version         types.String `tfsdk:"version"`
+	InstallFlags    types.List   `tfsdk:"install_flags"`
+	UpgradeFlags    types.List   `tfsdk:"upgrade_flags"`
+	LicenseFilePath types.String `tfsdk:"license_file_path"`
 }
 
 type launchpadSchema14ModelSpecMSR struct {
