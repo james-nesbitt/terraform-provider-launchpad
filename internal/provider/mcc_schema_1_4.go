@@ -268,6 +268,50 @@ func launchpadSchema14() schema.Schema {
 									},
 								},
 
+								"mcrConfig": schema.ListNestedBlock{
+									MarkdownDescription: "MCR configuration for the host",
+
+									Validators: []validator.List{
+										listvalidator.SizeAtMost(1),
+									},
+
+									NestedObject: schema.NestedBlockObject{
+										Attributes: map[string]schema.Attribute{
+											"debug": schema.BoolAttribute{
+												MarkdownDescription: "Log level",
+												Default:             booldefault.StaticBool(false),
+												Optional:            true,
+											},
+											"bip": schema.StringAttribute{
+												MarkdownDescription: "Base IP",
+												Optional:            true,
+											},
+										},
+										Blocks: map[string]schema.Block{
+
+											"default-address-pool": schema.ListNestedBlock{
+												MarkdownDescription: "Reassign docker subnets",
+
+												NestedObject: schema.NestedBlockObject{
+													Attributes: map[string]schema.Attribute{
+														"base": schema.StringAttribute{
+															MarkdownDescription: "The CIDR range allocated for bridge networks in each IP address pool.",
+															Optional:            true,
+															Computed:            true,
+														},
+														"size": schema.Int64Attribute{
+															MarkdownDescription: "The CIDR netmask that determines the subnet size to allocate from the base pool.",
+															Default:             int64default.StaticInt64(16),
+															Optional:            true,
+															Computed:            true,
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+
 								"ssh": schema.ListNestedBlock{
 									MarkdownDescription: "SSH configuration for the host",
 
@@ -440,6 +484,8 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 		mccHost := mcc_mke_api.Host{
 			Role:  host.Role.ValueString(),
 			Hooks: mcc_common_api.Hooks{},
+			// TODO: Fix line below
+			// DaemonConfig: &mcc_common_api.MCRConfig{},
 		}
 
 		if len(host.SSH) > 0 {
@@ -467,6 +513,8 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 				},
 			}
 		}
+
+		// TODO: Add some logic for MCR config
 
 		if len(host.Hooks) > 0 {
 			sh := host.Hooks[0]
@@ -541,13 +589,23 @@ type launchpadSchema14ModelSpecMSR struct {
 }
 
 type launchpadSchema14ModelSpecHost struct {
-	Role  types.String                          `tfsdk:"role"`
-	Hooks []launchpadSchema14ModelSpecHostHooks `tfsdk:"hooks"`
-	SSH   []launchpadSchema14ModelSpecHostSSH   `tfsdk:"ssh"`
-	WinRM []launchpadSchema14ModelSpecHostWinrm `tfsdk:"winrm"`
+	Role      types.String                              `tfsdk:"role"`
+	Hooks     []launchpadSchema14ModelSpecHostHooks     `tfsdk:"hooks"`
+	SSH       []launchpadSchema14ModelSpecHostSSH       `tfsdk:"ssh"`
+	WinRM     []launchpadSchema14ModelSpecHostWinrm     `tfsdk:"winrm"`
+	MCRConfig []launchpadSchema14ModelSpecHostMCRconfig `tfsdk:"mcrconfig"`
 }
 type launchpadSchema14ModelSpecHostHooks struct {
 	Apply []launchpadSchema14ModelSpecHostHookAction `tfsdk:"apply"`
+}
+type launchpadSchema14ModelSpecHostMCRconfig struct {
+	Debug              types.Bool
+	Bip                types.String
+	DefaultAddressPool []launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool `tfsdk:"defaultaddresspool"`
+}
+type launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool struct {
+	Base types.String `tfsdk:"base"`
+	Size types.Int64  `tfsdk:"size"`
 }
 type launchpadSchema14ModelSpecHostHookAction struct {
 	Before types.List `tfsdk:"before"`
