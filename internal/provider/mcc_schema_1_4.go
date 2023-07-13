@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -147,6 +148,7 @@ func launchpadSchema14() schema.Schema {
 								MarkdownDescription: "MKE license file path",
 								Optional:            true,
 								Computed:            true,
+								Default:             stringdefault.StaticString(""),
 							},
 
 							"install_flags": schema.ListAttribute{
@@ -154,12 +156,14 @@ func launchpadSchema14() schema.Schema {
 								ElementType:         types.StringType,
 								Optional:            true,
 								Computed:            true,
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 							"upgrade_flags": schema.ListAttribute{
 								MarkdownDescription: "Optional MKE bootstrapper update flags",
 								ElementType:         types.StringType,
 								Optional:            true,
 								Computed:            true,
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 						},
 					},
@@ -194,12 +198,14 @@ func launchpadSchema14() schema.Schema {
 									ElementType:         types.StringType,
 									Optional:            true,
 									Computed:            true,
+									Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 								"upgrade_flags": schema.ListAttribute{
 									MarkdownDescription: "Optional MSR bootstrapper update flags",
 									ElementType:         types.StringType,
 									Optional:            true,
 									Computed:            true,
+									Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 								},
 							},
 						},
@@ -235,6 +241,10 @@ func launchpadSchema14() schema.Schema {
 											"apply": schema.ListNestedBlock{
 												MarkdownDescription: "Launchpad.Apply string hooks for the host",
 
+						            			Validators: []validator.List{
+						            				listvalidator.SizeAtMost(1),
+						            			},
+
 												NestedObject: schema.NestedBlockObject{
 													Attributes: map[string]schema.Attribute{
 														"before": schema.ListAttribute{
@@ -242,12 +252,14 @@ func launchpadSchema14() schema.Schema {
 															ElementType:         types.StringType,
 															Optional:            true,
 															Computed:            true,
+															Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 														},
 														"after": schema.ListAttribute{
 															MarkdownDescription: "String hooks to run on hosts after the Apply operation is run.",
 															ElementType:         types.StringType,
 															Optional:            true,
 															Computed:            true,
+															Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 														},
 													},
 												},
