@@ -1,6 +1,6 @@
 module github.com/Mirantis/terraform-provider-launchpad
 
-go 1.19
+go 1.20
 
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.14.1
@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/Mirantis/mcc v0.0.0-20221202073622-0780228511dd
+	github.com/k0sproject/dig v0.2.0
 	github.com/k0sproject/rig v0.10.0
 	github.com/sirupsen/logrus v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -72,7 +73,6 @@ require (
 	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.3 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/k0sproject/dig v0.2.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
