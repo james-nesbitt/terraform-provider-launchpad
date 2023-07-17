@@ -19,6 +19,7 @@ import (
 
 	mcc_common_api "github.com/Mirantis/mcc/pkg/product/common/api"
 	mcc_mke_api "github.com/Mirantis/mcc/pkg/product/mke/api"
+	k0s_dig "github.com/k0sproject/dig"
 	k0s_rig "github.com/k0sproject/rig"
 )
 
@@ -268,7 +269,7 @@ func launchpadSchema14() schema.Schema {
 									},
 								},
 
-								"mcrConfig": schema.ListNestedBlock{
+								"mcr_config": schema.ListNestedBlock{
 									MarkdownDescription: "MCR configuration for the host",
 
 									Validators: []validator.List{
@@ -279,18 +280,25 @@ func launchpadSchema14() schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"debug": schema.BoolAttribute{
 												MarkdownDescription: "Log level",
-												Default:             booldefault.StaticBool(false),
 												Optional:            true,
+												Computed:            true,
+												Default:             booldefault.StaticBool(false),
 											},
 											"bip": schema.StringAttribute{
 												MarkdownDescription: "Base IP",
 												Optional:            true,
+												Computed:            true,
+												Default:             stringdefault.StaticString(""),
 											},
 										},
 										Blocks: map[string]schema.Block{
 
-											"default-address-pool": schema.ListNestedBlock{
+											"default_address_pool": schema.ListNestedBlock{
 												MarkdownDescription: "Reassign docker subnets",
+
+												Validators: []validator.List{
+													listvalidator.SizeAtMost(1),
+												},
 
 												NestedObject: schema.NestedBlockObject{
 													Attributes: map[string]schema.Attribute{
@@ -298,6 +306,7 @@ func launchpadSchema14() schema.Schema {
 															MarkdownDescription: "The CIDR range allocated for bridge networks in each IP address pool.",
 															Optional:            true,
 															Computed:            true,
+															Default:             stringdefault.StaticString(""),
 														},
 														"size": schema.Int64Attribute{
 															MarkdownDescription: "The CIDR netmask that determines the subnet size to allocate from the base pool.",
@@ -484,8 +493,6 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 		mccHost := mcc_mke_api.Host{
 			Role:  host.Role.ValueString(),
 			Hooks: mcc_common_api.Hooks{},
-			// TODO: Fix line below
-			// DaemonConfig: &mcc_common_api.MCRConfig{},
 		}
 
 		if len(host.SSH) > 0 {
@@ -514,7 +521,31 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 			}
 		}
 
-		// TODO: Add some logic for MCR config
+		if len(host.MCRConfig) > 0 {
+			mcrConfig := host.MCRConfig[0]
+			daemonConfig := k0s_dig.Mapping{}
+
+			/**
+			 * Schema Daemon config, and the dig.Mapping struct
+			 *
+			 * Launchpad expects a dig.Mapping for config, which is really just a
+			 * map[string]interface{}. Launchpad doesn't validate the struct at all
+			 * but does Marshall the result into json.
+			 * All you need to do here is ensure that you treat it like a string
+			 * key map, and ensure that any value that you add can be marshalled
+			 * using `json.Marshall`.
+			 *
+			 * You will want to add some interpretation for any daemon confit that
+			 * you expect to be able to pass.
+			 *
+			 */
+
+			daemonConfig["debug"] = mcrConfig.Debug
+			daemonConfig["bip"] = mcrConfig.Bip
+			daemonConfig["default-address-pool"] = mcrConfig.DefaultAddressPool
+
+			mccHost.DaemonConfig = daemonConfig
+		}
 
 		if len(host.Hooks) > 0 {
 			sh := host.Hooks[0]
@@ -593,19 +624,19 @@ type launchpadSchema14ModelSpecHost struct {
 	Hooks     []launchpadSchema14ModelSpecHostHooks     `tfsdk:"hooks"`
 	SSH       []launchpadSchema14ModelSpecHostSSH       `tfsdk:"ssh"`
 	WinRM     []launchpadSchema14ModelSpecHostWinrm     `tfsdk:"winrm"`
-	MCRConfig []launchpadSchema14ModelSpecHostMCRconfig `tfsdk:"mcrconfig"`
+	MCRConfig []launchpadSchema14ModelSpecHostMCRconfig `tfsdk:"mcr_config"`
 }
 type launchpadSchema14ModelSpecHostHooks struct {
 	Apply []launchpadSchema14ModelSpecHostHookAction `tfsdk:"apply"`
 }
 type launchpadSchema14ModelSpecHostMCRconfig struct {
-	Debug              types.Bool
-	Bip                types.String
-	DefaultAddressPool []launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool `tfsdk:"defaultaddresspool"`
+	Debug              types.Bool                                                  `json:"debug" tfsdk:"debug"`
+	Bip                types.String                                                `json:"bip" tfsdk:"bip"`
+	DefaultAddressPool []launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool `json:"default-address-pool" tfsdk:"default_address_pool"`
 }
 type launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool struct {
-	Base types.String `tfsdk:"base"`
-	Size types.Int64  `tfsdk:"size"`
+	Base types.String `json:"base" tfsdk:"base"`
+	Size types.Int64  `json:"size" tfsdk:"size"`
 }
 type launchpadSchema14ModelSpecHostHookAction struct {
 	Before types.List `tfsdk:"before"`
