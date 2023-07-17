@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
-    "github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -241,9 +241,9 @@ func launchpadSchema14() schema.Schema {
 											"apply": schema.ListNestedBlock{
 												MarkdownDescription: "Launchpad.Apply string hooks for the host",
 
-						            			Validators: []validator.List{
-						            				listvalidator.SizeAtMost(1),
-						            			},
+												Validators: []validator.List{
+													listvalidator.SizeAtMost(1),
+												},
 
 												NestedObject: schema.NestedBlockObject{
 													Attributes: map[string]schema.Attribute{

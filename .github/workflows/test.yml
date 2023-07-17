@@ -20,8 +20,15 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: github.com/Mirantis/mcc
+      GH_ACCESS_TOKEN: ${{ secrets.GH_MCC_ACCESS_TOKEN }}
+      GH_USERNAME: ${{ secrets.GH_MCC_USERNAME }}
     timeout-minutes: 5
     steps:
+      - name: Setup MCC gitub repo private access
+        run: git config --global url."https://$GH_USERNAME:$GH_ACCESS_TOKEN@github.com/".insteadOf "https://github.com/"
+
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
       - uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
         with:
@@ -36,7 +43,13 @@ jobs:
 
   generate:
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: github.com/Mirantis/mcc
+      GH_ACCESS_TOKEN: ${{ secrets.GH_MCC_ACCESS_TOKEN }}
+      GH_USERNAME: ${{ secrets.GH_MCC_USERNAME }}
     steps:
+      - name: Setup MCC gitub repo private access
+        run: git config --global url."https://$GH_USERNAME:$GH_ACCESS_TOKEN@github.com/".insteadOf "https://github.com/"
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
       - uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
         with:
@@ -53,6 +66,10 @@ jobs:
     name: Terraform Provider Acceptance Tests
     needs: build
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: github.com/Mirantis/mcc
+      GH_ACCESS_TOKEN: ${{ secrets.GH_MCC_ACCESS_TOKEN }}
+      GH_USERNAME: ${{ secrets.GH_MCC_USERNAME }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -61,6 +78,8 @@ jobs:
         terraform:
           - '1.4.*'
     steps:
+      - name: Setup MCC gitub repo private access
+        run: git config --global url."https://$GH_USERNAME:$GH_ACCESS_TOKEN@github.com/".insteadOf "https://github.com/"
       - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
       - uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753 # v4.0.1
         with:

@@ -199,6 +199,7 @@ Optional:
 - `admin_username` (String) MKE admin user name
 - `image_repo` (String) Image repo for MKE images
 - `install_flags` (List of String) Optional MKE bootstrapper install flags
+- `license_file_path` (String) MKE license file path
 - `upgrade_flags` (List of String) Optional MKE bootstrapper update flags
 
 
