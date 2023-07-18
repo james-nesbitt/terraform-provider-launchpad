@@ -25,7 +25,7 @@ resource "launchpad_config" "example" {
     mke {
       version        = "3.6.4"
       admin_password = "mypassword"
-      install_flags  = ["--default-orchestrator"]
+      install_flags  = ["--default-orchestrator=kubernetes"]
     }
     msr {
       version = "2.9.4"
@@ -37,6 +37,21 @@ resource "launchpad_config" "example" {
         address  = "manager1.example.org"
         key_path = "./key.pem"
         user     = "ubuntu"
+      }
+
+      hooks {
+        apply {
+          before = ["ls -la", "pwd"]
+        }
+      }
+      mcr_config {
+        debug = true
+        bip   = "172.20.0.1/16"
+
+        default_address_pool {
+          base = "172.20.0.0/16"
+          size = 16
+        }
       }
     }
 
