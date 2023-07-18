@@ -120,6 +120,7 @@ Required:
 Optional:
 
 - `hooks` (Block List) Hook configuration for the host (see [below for nested schema](#nestedblock--spec--host--hooks))
+- `mcr_config` (Block List) MCR configuration for the host (see [below for nested schema](#nestedblock--spec--host--mcr_config))
 - `ssh` (Block List) SSH configuration for the host (see [below for nested schema](#nestedblock--spec--host--ssh))
 - `winrm` (Block List) WinRM configuration for the host (see [below for nested schema](#nestedblock--spec--host--winrm))
 
@@ -137,6 +138,25 @@ Optional:
 
 - `after` (List of String) String hooks to run on hosts after the Apply operation is run.
 - `before` (List of String) String hooks to run on hosts before the Apply operation is run.
+
+
+
+<a id="nestedblock--spec--host--mcr_config"></a>
+### Nested Schema for `spec.host.mcr_config`
+
+Optional:
+
+- `bip` (String) Base IP
+- `debug` (Boolean) Log level
+- `default_address_pool` (Block List) Reassign docker subnets (see [below for nested schema](#nestedblock--spec--host--mcr_config--default_address_pool))
+
+<a id="nestedblock--spec--host--mcr_config--default_address_pool"></a>
+### Nested Schema for `spec.host.mcr_config.default_address_pool`
+
+Optional:
+
+- `base` (String) The CIDR range allocated for bridge networks in each IP address pool.
+- `size` (Number) The CIDR netmask that determines the subnet size to allocate from the base pool.
 
 
 

@@ -55,6 +55,16 @@ resource "launchpad_config" "test" {
                     before = [ "ls -la", "pwd" ]
                 }
             }
+
+            mcr_config {
+                debug = true
+                bip = "172.20.0.1/16"
+
+                default_address_pool {
+                    base = "172.20.0.0/16"
+                    size = 16
+                }
+            }
         }
 
         host {
