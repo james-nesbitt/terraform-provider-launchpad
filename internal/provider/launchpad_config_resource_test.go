@@ -39,7 +39,7 @@ resource "launchpad_config" "test" {
             install_flags  = ["--flag1", "--flag2" ]
         }
         msr {
-            version = "2.9.4"
+            version = "2.9.1"
         }
 
         host {
@@ -60,7 +60,7 @@ resource "launchpad_config" "test" {
                 debug = true
                 bip = "172.20.0.1/16"
 
-                default_address_pool = [
+                default_address_pools = [
                     {
                         base="172.21.0.0",
                         size=16

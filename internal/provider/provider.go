@@ -2,13 +2,11 @@ package provider
 
 import (
 	"context"
-	//	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	//	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 const (
@@ -57,6 +55,8 @@ func (p *LaunchpadProvider) Configure(ctx context.Context, req provider.Configur
 
 	resp.ResourceData = &data
 	resp.DataSourceData = &data
+
+	EnableLogrusToTflog()
 }
 
 func (p *LaunchpadProvider) Resources(ctx context.Context) []func() resource.Resource {
