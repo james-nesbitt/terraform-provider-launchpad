@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
@@ -290,23 +289,25 @@ func launchpadSchema14() schema.Schema {
 												Computed:            true,
 												Default:             stringdefault.StaticString(""),
 											},
-										},
-										Blocks: map[string]schema.Block{
 
-											"default_address_pool": schema.ListNestedBlock{
+											"default_address_pools": schema.ListNestedAttribute{
 												MarkdownDescription: "Reassign docker subnets",
 
-												Validators: []validator.List{
-													listvalidator.SizeAtMost(1),
-												},
+												Optional: true,
 
-												NestedObject: schema.NestedBlockObject{
+												NestedObject: schema.NestedAttributeObject{
+
+													Validators: []validator.Object{
+														// @todo validate that only base and size attributes were added
+														// because in our unit test I was able to add fields that
+														// did not exist.
+														// @see: "github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
+													},
+
 													Attributes: map[string]schema.Attribute{
 														"base": schema.StringAttribute{
 															MarkdownDescription: "The CIDR range allocated for bridge networks in each IP address pool.",
-															Optional:            true,
-															Computed:            true,
-															Default:             stringdefault.StaticString(""),
+															Required:            true,
 														},
 														"size": schema.Int64Attribute{
 															MarkdownDescription: "The CIDR netmask that determines the subnet size to allocate from the base pool.",
@@ -408,7 +409,7 @@ func (ls launchpadSchema14Model) ClusterEqual(c launchpadSchema14Model) bool {
 }
 
 // ClusterConfig convert this state object into a proper ClusterConfig.
-func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_api.ClusterConfig, error) {
+func (ls launchpadSchema14Model) ClusterConfig(diags *diag.Diagnostics) mcc_mke_api.ClusterConfig {
 	cc := mcc_mke_api.ClusterConfig{
 		APIVersion: "launchpad.mirantis.com/mke/v1.4",
 		Kind:       "mke",
@@ -540,9 +541,20 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 			 *
 			 */
 
-			daemonConfig["debug"] = mcrConfig.Debug
-			daemonConfig["bip"] = mcrConfig.Bip
-			daemonConfig["default-address-pool"] = mcrConfig.DefaultAddressPool
+			daemonConfig["debug"] = mcrConfig.Debug.ValueBool()
+			daemonConfig["bip"] = mcrConfig.Bip.ValueString()
+
+			if len(mcrConfig.DefaultAddressPools) > 0 {
+				daps := []interface{}{}
+				for _, dap := range mcrConfig.DefaultAddressPools {
+					dapm := map[string]interface{}{
+						"base": dap.Base.ValueString(),
+						"size": dap.Size.ValueInt64(),
+					}
+					daps = append(daps, dapm)
+				}
+				daemonConfig["default-address-pools"] = daps
+			}
 
 			mccHost.DaemonConfig = daemonConfig
 		}
@@ -574,7 +586,7 @@ func (ls launchpadSchema14Model) ClusterConfig(diags diag.Diagnostics) (mcc_mke_
 		cc.Spec.Hosts = append(cc.Spec.Hosts, &mccHost)
 	}
 
-	return cc, nil
+	return cc
 }
 
 type launchpadSchema14ModelMetadata struct {
@@ -630,11 +642,11 @@ type launchpadSchema14ModelSpecHostHooks struct {
 	Apply []launchpadSchema14ModelSpecHostHookAction `tfsdk:"apply"`
 }
 type launchpadSchema14ModelSpecHostMCRconfig struct {
-	Debug              types.Bool                                                  `json:"debug" tfsdk:"debug"`
-	Bip                types.String                                                `json:"bip" tfsdk:"bip"`
-	DefaultAddressPool []launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool `json:"default-address-pool" tfsdk:"default_address_pool"`
+	Debug               types.Bool                                                   `json:"debug" tfsdk:"debug"`
+	Bip                 types.String                                                 `json:"bip" tfsdk:"bip"`
+	DefaultAddressPools []launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPools `json:"default-address-pools" tfsdk:"default_address_pools"`
 }
-type launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPool struct {
+type launchpadSchema14ModelSpecHostMCRconfigDefaultAddressPools struct {
 	Base types.String `json:"base" tfsdk:"base"`
 	Size types.Int64  `json:"size" tfsdk:"size"`
 }

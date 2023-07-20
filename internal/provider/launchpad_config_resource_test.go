@@ -60,10 +60,17 @@ resource "launchpad_config" "test" {
                 debug = true
                 bip = "172.20.0.1/16"
 
-                default_address_pool {
-                    base = "172.20.0.0/16"
-                    size = 16
-                }
+                default_address_pool = [
+                    {
+                        base="172.21.0.0",
+                        size=16
+                        test="test" // this should produce an error but it doesn't
+                    },
+                    {
+                        base="172.22.0.0",
+                        size=16
+                    }
+                ]
             }
         }
 

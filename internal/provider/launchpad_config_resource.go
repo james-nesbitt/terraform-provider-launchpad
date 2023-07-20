@@ -60,13 +60,12 @@ func (r *LaunchpadConfigResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	cc, err := cls.ClusterConfig(resp.Diagnostics)
-	if err != nil {
+	cc := cls.ClusterConfig(&resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		resp.Diagnostics.AddError(
 			"Failed to build cluster config from terraform config",
-			err.Error(),
+			"Provider failed to convert resource schema to a usable cluster config",
 		)
-
 		return
 	}
 
@@ -132,13 +131,12 @@ func (r *LaunchpadConfigResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	cc, err := cls.ClusterConfig(resp.Diagnostics)
-	if err != nil {
+	cc := cls.ClusterConfig(&resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		resp.Diagnostics.AddError(
 			"Failed to build cluster config from terraform config",
-			err.Error(),
+			"Provider failed to convert resource schema to a usable cluster config",
 		)
-
 		return
 	}
 
@@ -190,13 +188,12 @@ func (r *LaunchpadConfigResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	cc, err := sls.ClusterConfig(resp.Diagnostics)
-	if err != nil {
+	cc := sls.ClusterConfig(&resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
 		resp.Diagnostics.AddError(
 			"Failed to build cluster config from terraform config",
-			err.Error(),
+			"Provider failed to convert resource schema to a usable cluster config",
 		)
-
 		return
 	}
 

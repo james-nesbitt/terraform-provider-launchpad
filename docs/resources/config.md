@@ -163,14 +163,17 @@ Optional:
 
 - `bip` (String) Base IP
 - `debug` (Boolean) Log level
-- `default_address_pool` (Block List) Reassign docker subnets (see [below for nested schema](#nestedblock--spec--host--mcr_config--default_address_pool))
+- `default_address_pools` (Attributes List) Reassign docker subnets (see [below for nested schema](#nestedatt--spec--host--mcr_config--default_address_pools))
 
-<a id="nestedblock--spec--host--mcr_config--default_address_pool"></a>
-### Nested Schema for `spec.host.mcr_config.default_address_pool`
+<a id="nestedatt--spec--host--mcr_config--default_address_pools"></a>
+### Nested Schema for `spec.host.mcr_config.default_address_pools`
+
+Required:
+
+- `base` (String) The CIDR range allocated for bridge networks in each IP address pool.
 
 Optional:
 
-- `base` (String) The CIDR range allocated for bridge networks in each IP address pool.
 - `size` (Number) The CIDR netmask that determines the subnet size to allocate from the base pool.
 
 
