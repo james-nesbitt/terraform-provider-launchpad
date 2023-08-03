@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/Mirantis/mcc v0.0.0-20221202073622-0780228511dd
+	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/k0sproject/dig v0.2.0
 	github.com/k0sproject/rig v0.10.0
 	github.com/sirupsen/logrus v1.9.0
@@ -60,7 +61,6 @@ require (
 	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hashicorp/terraform-exec v0.18.1 // indirect
 	github.com/hashicorp/terraform-json v0.16.0 // indirect
-	github.com/hashicorp/terraform-plugin-log v0.9.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1 // indirect
 	github.com/hashicorp/terraform-registry-address v0.2.1 // indirect
 	github.com/hashicorp/terraform-svchost v0.1.1 // indirect

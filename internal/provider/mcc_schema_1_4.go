@@ -451,30 +451,33 @@ func (ls launchpadSchema14Model) ClusterConfig(diags *diag.Diagnostics) mcc_mke_
 	}
 
 	for _, msr := range ls.Spec.MSR {
-		hasMSRHosts := false
-		for _, host := range ls.Spec.Hosts {
-			if host.Role.ValueString() == HostRoleMSR {
-				hasMSRHosts = true
-			}
+		cc.Spec.MSR = &mcc_mke_api.MSRConfig{
+			ImageRepo:    msr.ImageRepo.ValueString(),
+			Version:      msr.Version.ValueString(),
+			ReplicaIDs:   msr.ReplicaIDs.ValueString(),
+			InstallFlags: mcc_common_api.Flags{},
+			UpgradeFlags: mcc_common_api.Flags{},
 		}
-		if hasMSRHosts {
-			cc.Spec.MSR = &mcc_mke_api.MSRConfig{
-				ImageRepo:    msr.ImageRepo.ValueString(),
-				Version:      msr.Version.ValueString(),
-				ReplicaIDs:   msr.ReplicaIDs.ValueString(),
-				InstallFlags: mcc_common_api.Flags{},
-				UpgradeFlags: mcc_common_api.Flags{},
-			}
 
-			if !msr.InstallFlags.IsNull() {
-				var fvs []string
-				if diag := msr.InstallFlags.ElementsAs(context.Background(), &fvs, true); diag == nil {
-					cc.Spec.MSR.InstallFlags = mcc_common_api.Flags(fvs)
-				}
+		if !msr.InstallFlags.IsNull() {
+			var fvs []string
+			if diag := msr.InstallFlags.ElementsAs(context.Background(), &fvs, true); diag == nil {
+				cc.Spec.MSR.InstallFlags = mcc_common_api.Flags(fvs)
 			}
-		} else {
-			diags.AddWarning("MSR configuration without hosts", "MSR configuration was provided, however there are no hosts with the MSR role provided. MSR installation is skippet.")
 		}
+	}
+
+	hasMSRHosts := false
+	for _, host := range ls.Spec.Hosts {
+		if host.Role.ValueString() == HostRoleMSR {
+			hasMSRHosts = true
+		}
+	}
+
+	if hasMSRHosts && cc.Spec.MSR == nil {
+		diags.AddError("MSR hosts were provided, but there is no MSR configuration.", "You have MSR hosts in your configuration, but you have not provided an MSR configuration block. You must add the msr block to apply.")
+	} else if cc.Spec.MSR != nil && !hasMSRHosts {
+		diags.AddError("MSR config passed without hosts", "You have MSR setup in your configuration, but have not added any msr hosts. This sounds benign, but it causes a pointer error in the launchpad VerifyFacts.ValidateMSRVersionJump() method.")
 	}
 
 	if !ls.Spec.MKE.InstallFlags.IsNull() {

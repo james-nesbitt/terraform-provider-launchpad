@@ -60,6 +60,52 @@ provider locally,
 
 ## Developing the Provider
 
+### Using the local provider
+
+You can develop the provider locally, and test the development version by building
+the plugin locally, and then configuring terraform to use the local version as a
+`dev_override` for the production version.
+
+To build the local plugin:
+```
+make local
+```
+
+It is recommended that you use the `dev_override` by using a special TF config file
+and running terraform with an environment variable telling it to use the special file.
+This avoids using the development version globally, preventing simple mistakes.
+
+First create a file like my_tf_config_file:
+
+```
+provider_installation {
+# This disables the version and checksum verifications for this provider
+# and forces Terraform to look for the launchpad provider plugin in the
+# given directory.
+dev_overrides {
+	"mirantis/launchpad" = "path/to/this/repo/dist/terraform-provider-launchpad_linux_amd64_v1"
+}
+# For all other providers, install them directly from their origin provider
+# registries as normal. If you omit this, Terraform will _only_ use
+# the dev_overrides block, and so no other providers will be available.
+direct {}
+}
+```
+
+@NOTE that you mus replace `linux` and `amd64` if you are on a Mac/Windows machine
+  or not on a 64bit intel/amd processor.  See `go env GOOS` and `go env GOARCH` for
+  the correct values.
+
+then run terraform with a config file override pointing to the new file:
+```
+ $/> TF_CLI_CONFIG_FILE=my_tf_config_file terraform plan
+```
+(or use an environment variable export)
+
+@see: https://developer.hashicorp.com/terraform/cli/config/config-file#development-overrides-for-provider-developers"
+
+### Contributing
+
 To generate or update documentation, run `go generate`.
 
 In order to run the testing mode unit test suite:
