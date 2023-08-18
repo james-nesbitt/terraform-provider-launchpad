@@ -144,11 +144,10 @@ func launchpadSchema14() schema.Schema {
 								Required:            true,
 								Sensitive:           true,
 							},
+
 							"license_file_path": schema.StringAttribute{
 								MarkdownDescription: "MKE license file path",
 								Optional:            true,
-								Computed:            true,
-								Default:             stringdefault.StaticString(""),
 							},
 
 							"install_flags": schema.ListAttribute{
@@ -164,6 +163,42 @@ func launchpadSchema14() schema.Schema {
 								Optional:            true,
 								Computed:            true,
 								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							},
+
+							"config_file": schema.StringAttribute{
+								MarkdownDescription: "Path to toml config file",
+								Optional:            true,
+							},
+							"config_data": schema.StringAttribute{
+								MarkdownDescription: "Inline toml config data",
+								Optional:            true,
+							},
+						},
+
+						Blocks: map[string]schema.Block{
+							"cloud": schema.ListNestedBlock{
+								MarkdownDescription: "Cloud Provider configuration",
+
+								Validators: []validator.List{
+									listvalidator.SizeAtMost(1),
+								},
+								NestedObject: schema.NestedBlockObject{
+									Attributes: map[string]schema.Attribute{
+										"provider": schema.StringAttribute{
+											MarkdownDescription: "Cloud Provider plugin to use",
+											Required:            true,
+										},
+										"config_file": schema.StringAttribute{
+											MarkdownDescription: "Cloud provider config file path",
+											Optional:            true,
+										},
+
+										"config_data": schema.StringAttribute{
+											MarkdownDescription: "Cloud provider inline configuration",
+											Optional:            true,
+										},
+									},
+								},
 							},
 						},
 					},
@@ -444,10 +479,22 @@ func (ls launchpadSchema14Model) ClusterConfig(diags *diag.Diagnostics) mcc_mke_
 				UpgradeFlags:    mcc_common_api.Flags{},
 				Metadata:        &mcc_mke_api.MKEMetadata{},
 				LicenseFilePath: ls.Spec.MKE.LicenseFilePath.ValueString(),
+				ConfigFile:      ls.Spec.MKE.ConfigFile.ValueString(),
+				ConfigData:      ls.Spec.MKE.ConfigData.ValueString(),
+
+				Cloud: nil,
 			},
 
 			MSR: nil,
 		},
+	}
+
+	for _, cloud := range ls.Spec.MKE.Cloud {
+		cc.Spec.MKE.Cloud = &mcc_mke_api.MKECloud{
+			Provider:   cloud.Provider.ValueString(),
+			ConfigFile: cloud.ConfigFile.ValueString(),
+			ConfigData: cloud.ConfigData.ValueString(),
+		}
 	}
 
 	for _, msr := range ls.Spec.MSR {
@@ -617,13 +664,22 @@ type launchpadSchema14ModelSpecMCR struct {
 }
 
 type launchpadSchema14ModelSpecMKE struct {
-	AdminPassword   types.String `tfsdk:"admin_password"`
-	AdminUsername   types.String `tfsdk:"admin_username"`
-	ImageRepo       types.String `tfsdk:"image_repo"`
-	Version         types.String `tfsdk:"version"`
-	InstallFlags    types.List   `tfsdk:"install_flags"`
-	UpgradeFlags    types.List   `tfsdk:"upgrade_flags"`
-	LicenseFilePath types.String `tfsdk:"license_file_path"`
+	AdminPassword   types.String                         `tfsdk:"admin_password"`
+	AdminUsername   types.String                         `tfsdk:"admin_username"`
+	ImageRepo       types.String                         `tfsdk:"image_repo"`
+	Version         types.String                         `tfsdk:"version"`
+	InstallFlags    types.List                           `tfsdk:"install_flags"`
+	UpgradeFlags    types.List                           `tfsdk:"upgrade_flags"`
+	LicenseFilePath types.String                         `tfsdk:"license_file_path"`
+	ConfigFile      types.String                         `tfsdk:"config_file"`
+	ConfigData      types.String                         `tfsdk:"config_data"`
+	Cloud           []launchpadSchema14ModelSpecMKECloud `tfsdk:"cloud"`
+}
+
+type launchpadSchema14ModelSpecMKECloud struct {
+	Provider   types.String `tfsdk:"provider"`
+	ConfigFile types.String `tfsdk:"config_file"`
+	ConfigData types.String `tfsdk:"config_data"`
 }
 
 type launchpadSchema14ModelSpecMSR struct {

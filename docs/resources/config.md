@@ -235,10 +235,26 @@ Required:
 Optional:
 
 - `admin_username` (String) MKE admin user name
+- `cloud` (Block List) Cloud Provider configuration (see [below for nested schema](#nestedblock--spec--mke--cloud))
+- `config_data` (String) Inline toml config data
+- `config_file` (String) Path to toml config file
 - `image_repo` (String) Image repo for MKE images
 - `install_flags` (List of String) Optional MKE bootstrapper install flags
 - `license_file_path` (String) MKE license file path
 - `upgrade_flags` (List of String) Optional MKE bootstrapper update flags
+
+<a id="nestedblock--spec--mke--cloud"></a>
+### Nested Schema for `spec.mke.cloud`
+
+Required:
+
+- `provider` (String) Cloud Provider plugin to use
+
+Optional:
+
+- `config_data` (String) Cloud provider inline configuration
+- `config_file` (String) Cloud provider config file path
+
 
 
 <a id="nestedblock--spec--msr"></a>
