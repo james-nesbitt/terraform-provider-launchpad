@@ -15,8 +15,12 @@ func TestAccLaunchpadConfigResource(t *testing.T) {
 			{
 				Config: testAccLaunchpadConfigResourceConfig_minimal(),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("launchpad_config.test", "skip_destroy", "false"),
+					resource.TestCheckResourceAttr("launchpad_config.test", "skip_destroy", "true"),
 					resource.TestCheckResourceAttr("launchpad_config.test", "spec.host.0.hooks.0.apply.0.before.0", "ls -la"),
+					resource.TestCheckResourceAttr("launchpad_config.test", "spec.mcr.version", "23.06"),
+					resource.TestCheckResourceAttr("launchpad_config.test", "spec.mke.install_flags.1", "--flag2"),
+					resource.TestCheckResourceAttr("launchpad_config.test", "spec.mke.config_data", "[sometoml]"),
+					resource.TestCheckResourceAttr("launchpad_config.test", "spec.mke.cloud.0.config_data", "someconfig"),
 				),
 			},
 		},
@@ -26,17 +30,26 @@ func TestAccLaunchpadConfigResource(t *testing.T) {
 func testAccLaunchpadConfigResourceConfig_minimal() string {
 	return `
 resource "launchpad_config" "test" {
+    skip_destroy = true
+
     metadata {
         name = "test"
     }
     spec {
         mcr {
-            version = "22.10"
+            version = "23.06"
         }
         mke {
             version        = "3.6.4"
             admin_password = "mypassword"
             install_flags  = ["--flag1", "--flag2" ]
+
+            config_data    = "[sometoml]"
+
+            cloud {
+                provider    = "aws"
+                config_data = "someconfig"
+            }
         }
         msr {
             version = "2.9.1"
