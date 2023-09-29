@@ -57,7 +57,9 @@ func (r *LaunchpadConfigResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	if r.testingMode {
+	if model.SkipCreate.ValueBool() {
+		resp.Diagnostics.AddWarning("skipping create", "Skipping the launchpad create because of configuration flag.")
+	} else if r.testingMode {
 		resp.Diagnostics.AddWarning("testing mode warning", "launchpad config resource handler is in testing mode, no installation will be run.")
 
 	} else if err := mke.Apply(false, false, 10); err != nil {
@@ -88,7 +90,9 @@ func (r *LaunchpadConfigResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	if r.testingMode {
+	if model.SkipCreate.ValueBool() {
+		resp.Diagnostics.AddWarning("skipping destroy", "Skipping the launchpad destroy because of configuration flag.")
+	} else if r.testingMode {
 		resp.Diagnostics.AddWarning("testing mode warning", "launchpad config resource handler is in testing mode, no update will be run.")
 
 	} else if err := mke.Apply(false, false, 10); err != nil {
@@ -107,13 +111,15 @@ func (r *LaunchpadConfigResource) Update(ctx context.Context, req resource.Updat
 }
 
 func (r *LaunchpadConfigResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	_, mke := getterToModelAndProduct(ctx, &resp.Diagnostics, req.State.Get, false)
+	model, mke := getterToModelAndProduct(ctx, &resp.Diagnostics, req.State.Get, true)
 
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if r.testingMode {
+	if model.SkipDestroy.ValueBool() {
+		resp.Diagnostics.AddWarning("skipping destroy", "Skipping the launchpad destroy because of configuration flag.")
+	} else if r.testingMode {
 		resp.Diagnostics.AddWarning("testing mode warning", "launchpad config resource handler is in testing mode, no reset will be run.")
 
 	} else if err := mke.Reset(); err != nil {

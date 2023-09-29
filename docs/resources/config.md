@@ -91,7 +91,8 @@ resource "launchpad_config" "example" {
 ### Optional
 
 - `metadata` (Block, Optional) Metadata for the launchpad cluster (see [below for nested schema](#nestedblock--metadata))
-- `skip_destroy` (Boolean) Do not bother uninstalling on destroy
+- `skip_create` (Boolean) Skip apply on create
+- `skip_destroy` (Boolean) Skip reset on destroy
 - `spec` (Block, Optional) Launchpad install specifications (see [below for nested schema](#nestedblock--spec))
 
 ### Read-Only

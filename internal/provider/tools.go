@@ -3,8 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"io"
-	"log"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -15,16 +13,16 @@ import (
 // AllLoggingToTFLog turns on passing of ruslog and log to tflog.
 func AllLoggingToTFLog() {
 	logrus.AddHook(logrusTFLogHandler{})
+	logrus.SetLevel(logrus.TraceLevel) // trace all log levels, as we don't know what to catch yet.
+
 	rig.SetLogger(rigTFLogLogger{})
 
-	logrus.SetOutput(io.Discard)
-	log.SetOutput(io.Discard) // we should probably catch base log errors.
 }
 
 // logRusTFLogHandler a tflog handler which integrates logrus so that logrus output gets handled natively.
 type logrusTFLogHandler struct{}
 
-// Fire off a logrus event.
+// Receive a logrus event.
 func (lh logrusTFLogHandler) Fire(e *logrus.Entry) error {
 	go func(event *logrus.Entry) {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
@@ -42,7 +40,9 @@ func (lh logrusTFLogHandler) Levels() []logrus.Level {
 
 func logrusTFLogFire(ctx context.Context, e *logrus.Entry) {
 	mes := e.Message
-	addFields := map[string]interface{}{}
+	addFields := map[string]interface{}{
+		"pipe": "logrusTFLogFire",
+	}
 
 	switch e.Level {
 	case logrus.DebugLevel:
@@ -57,6 +57,7 @@ func logrusTFLogFire(ctx context.Context, e *logrus.Entry) {
 }
 
 // rigTFLogLogger Logger that converts k0sProject logging to tflog.
+// @NOTE we re-use the logrus levels for convenience - but this has nothing to do with logrus.
 type rigTFLogLogger struct {
 }
 
@@ -82,7 +83,9 @@ func rigLoggerTFLogFire(level logrus.Level, entry string, values ...interface{})
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 		defer cancel()
 
-		addFields := map[string]interface{}{}
+		addFields := map[string]interface{}{
+			"pipe": "rigTFLogLogger",
+		}
 
 		switch level {
 		case logrus.DebugLevel:
