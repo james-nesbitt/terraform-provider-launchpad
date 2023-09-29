@@ -41,7 +41,13 @@ func launchpadSchema14() schema.Schema {
 			},
 
 			"skip_destroy": schema.BoolAttribute{
-				MarkdownDescription: "Do not bother uninstalling on destroy",
+				MarkdownDescription: "Skip reset on destroy",
+				Optional:            true,
+				Computed:            true,
+				Default:             booldefault.StaticBool(false),
+			},
+			"skip_create": schema.BoolAttribute{
+				MarkdownDescription: "Skip apply on create",
 				Optional:            true,
 				Computed:            true,
 				Default:             booldefault.StaticBool(false),
@@ -432,6 +438,7 @@ func launchpadSchema14() schema.Schema {
 
 type launchpadSchema14Model struct {
 	Id          types.String `tfsdk:"id"`
+	SkipCreate  types.Bool   `tfsdk:"skip_create"`
 	SkipDestroy types.Bool   `tfsdk:"skip_destroy"`
 
 	Metadata launchpadSchema14ModelMetadata `tfsdk:"metadata"`
