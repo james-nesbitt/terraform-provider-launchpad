@@ -56,7 +56,7 @@ func (p *LaunchpadProvider) Configure(ctx context.Context, req provider.Configur
 	resp.ResourceData = &data
 	resp.DataSourceData = &data
 
-	AllLoggingToTFLog()
+	allLoggingToTFLog()
 }
 
 func (p *LaunchpadProvider) Resources(ctx context.Context) []func() resource.Resource {

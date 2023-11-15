@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// AllLoggingToTFLog turns on passing of ruslog and log to tflog.
-func AllLoggingToTFLog() {
+// allLoggingToTFLog turns on passing of ruslog and log to tflog.
+func allLoggingToTFLog() {
 	logrus.AddHook(logrusTFLogHandler{})
 	logrus.SetLevel(logrus.TraceLevel) // trace all log levels, as we don't know what to catch yet.
 
@@ -79,24 +79,22 @@ func (l rigTFLogLogger) Errorf(msg string, values ...interface{}) {
 
 // rigLoggerTFLogFire Take a k0sProject.Rig log entry, and fire a tflog entry.
 func rigLoggerTFLogFire(level logrus.Level, entry string, values ...interface{}) {
-	go func(msg string) {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
-		defer cancel()
+	msg := fmt.Sprintf(entry, values...)
 
-		addFields := map[string]interface{}{
-			"pipe": "rigTFLogLogger",
-		}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	addFields := map[string]interface{}{
+		"pipe": "rigTFLogLogger",
+	}
 
-		switch level {
-		case logrus.DebugLevel:
-			tflog.Debug(ctx, msg, addFields)
-		case logrus.ErrorLevel, logrus.PanicLevel, logrus.FatalLevel:
-			tflog.Error(ctx, msg, addFields)
-		case logrus.InfoLevel:
-			tflog.Info(ctx, msg, addFields)
-		case logrus.WarnLevel:
-			tflog.Warn(ctx, msg, addFields)
-		}
-
-	}(fmt.Sprintf(entry, values...))
+	switch level {
+	case logrus.DebugLevel:
+		tflog.Debug(ctx, msg, addFields)
+	case logrus.ErrorLevel, logrus.PanicLevel, logrus.FatalLevel:
+		tflog.Error(ctx, msg, addFields)
+	case logrus.InfoLevel:
+		tflog.Info(ctx, msg, addFields)
+	case logrus.WarnLevel:
+		tflog.Warn(ctx, msg, addFields)
+	}
 }
